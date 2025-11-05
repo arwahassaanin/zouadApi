@@ -1,10 +1,10 @@
-# استخدام PHP 8.2 CLI مع Apache أو بدون Apache
+# استخدم PHP 8.2 CLI
 FROM php:8.2-cli
 
-# إنشاء مجلد العمل داخل الحاوية
+# مجلد العمل داخل الحاوية
 WORKDIR /app
 
-# نسخ جميع الملفات من المشروع للحاوية
+# نسخ كل ملفات المشروع
 COPY . .
 
 # تثبيت الأدوات اللازمة وامتدادات PHP
@@ -17,8 +17,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # تثبيت تبعيات المشروع
 RUN composer install --no-dev --optimize-autoloader
 
-# توليد APP_KEY تلقائيًا عند تشغيل الحاوية
+# إنشاء ملف .env من المثال قبل توليد APP_KEY
+COPY .env.example .env
+
+# توليد مفتاح التطبيق
 RUN php artisan key:generate
 
-# تحديد الأمر الافتراضي لتشغيل التطبيق
+# الأمر الافتراضي لتشغيل Laravel
 CMD php artisan serve --host 0.0.0.0 --port $PORT
