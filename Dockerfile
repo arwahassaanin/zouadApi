@@ -1,30 +1,24 @@
-# Use official PHP image with extensions
-FROM php:8.2-fpm
+# استخدام PHP 8.2 CLI مع Apache أو بدون Apache
+FROM php:8.2-cli
 
-# Set working directory
-WORKDIR /var/www/html
+# إنشاء مجلد العمل داخل الحاوية
+WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libonig-dev \
-    libzip-dev \
-    zip \
-    curl \
-    && docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath
-
-# Install Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Copy project files
+# نسخ جميع الملفات من المشروع للحاوية
 COPY . .
 
-# Install PHP dependencies
+# تثبيت الأدوات اللازمة وامتدادات PHP
+RUN apt-get update && apt-get install -y unzip git libzip-dev \
+    && docker-php-ext-install pdo_mysql zip
+
+# تثبيت Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# تثبيت تبعيات المشروع
 RUN composer install --no-dev --optimize-autoloader
 
-# Expose port
-EXPOSE 8000
+# توليد APP_KEY تلقائيًا عند تشغيل الحاوية
+RUN php artisan key:generate
 
-# Start Laravel server
-CMD php artisan serve --host=0.0.0.0 --port=8000
+# تحديد الأمر الافتراضي لتشغيل التطبيق
+CMD php artisan serve --host 0.0.0.0 --port $PORT
