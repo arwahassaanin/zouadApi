@@ -1,27 +1,25 @@
-# استخدم PHP 8.2 CLI
 FROM php:8.2-cli
 
-# مجلد العمل داخل الحاوية
 WORKDIR /app
 
-# نسخ كل ملفات المشروع
-COPY . .
+RUN apt-get update && apt-get install -y unzip git libzip-dev curl \
+    && docker-php-ext-install pdo pdo_mysql zip
 
-# تثبيت الأدوات اللازمة وامتدادات PHP
-RUN apt-get update && apt-get install -y unzip git libzip-dev \
-    && docker-php-ext-install pdo_mysql zip
-
-# تثبيت Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# تثبيت تبعيات المشروع
+COPY . .
+
 RUN composer install --no-dev --optimize-autoloader
 
-# إنشاء ملف .env من المثال قبل توليد APP_KEY
-COPY .env.example .env
+RUN mkdir -p storage/certs
 
-# توليد مفتاح التطبيق
-RUN php artisan key:generate
+COPY storage/certs/ca.pem /app/storage/certs/ca.pem
+RUN chmod 644 /app/storage/certs/ca.pem || true
 
-# الأمر الافتراضي لتشغيل Laravel
-CMD php artisan serve --host 0.0.0.0 --port $PORT
+RUN chmod -R 777 storage bootstrap/cache
+
+RUN php artisan key:generate || true
+
+RUN php artisan storage:link || true
+
+CMD bash -c "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT}"

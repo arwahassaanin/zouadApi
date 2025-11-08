@@ -31,8 +31,7 @@ class ProfileController extends Controller
             'phone_number' => $validated['phone_number'],
             'role' => $validated['role'],
             'university_id' => $validated['university_id']?? null,
-             'national_id' => $validated['national_id']?? null,
-
+            'national_id' => $validated['national_id']?? null,
             'university' => $validated['university'],
             'department' => $validated['department'],
         ]);
