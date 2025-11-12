@@ -11,7 +11,7 @@ use App\Http\Controllers\Api\EmailVerficationController;
 //     return $request->user();
 // })->middleware('auth:sanctum');
 
- Route::post('/test-upload', [ProfileController::class, 'testUpload']);
- Route::get('/test-cloudinary', [ProfileController::class, 'checkCloudinary']);
+// Route::post('/test-upload', [ProfileController::class, 'uploadTest']);
+//  Route::get('/test-cloudinary', [ProfileController::class, 'checkCloudinary']);
 
 

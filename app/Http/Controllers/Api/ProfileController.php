@@ -88,20 +88,21 @@ public function update(profileRequest $request)
             'user' => new profileResource($user->load('profile')),
         ], 200);
     }
+// ProfileController.php
 public function uploadTest(Request $request)
-    {
-        $request->validate([
-            'image' => 'required|image|max:2048', // 2MB
-        ]);
+{
+    $request->validate([
+        'image' => 'required|image|max:2048',
+    ]);
 
-        // رفع الصورة على Cloudinary
-        $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
+    $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
 
-        return response()->json([
-            'message' => 'تم رفع الصورة بنجاح!',
-            'url' => $uploadedFileUrl
-        ]);
-    }
+    return response()->json([
+        'message' => 'تم رفع الصورة بنجاح!',
+        'url' => $uploadedFileUrl
+    ]);
+}
+
 
     public function checkCloudinary()
     {
