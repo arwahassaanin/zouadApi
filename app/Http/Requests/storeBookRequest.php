@@ -24,32 +24,48 @@ class storeBookRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'title' => 'required|string|min:3|max:255',
-            'name' => [
-                'required',
-                'string',
-                function ($attribute, $value, $fail) {
-                    if (!Faculty::where('name', $value)->exists()) {
-                        $fail("اسم الكلية غير موجود.");
-                    }
+         return [
+        'image' => 'required',
+        'cover_image' => 'nullable',
+        'title' => 'required|string|min:3|max:255',
+        'name' => [
+            'required',
+            'string',
+            function ($attribute, $value, $fail) {
+                if (!Faculty::where('name', $value)->exists()) {
+                    $fail("اسم الكلية غير موجود.");
                 }
-            ],
-            // 'phone_number' => [
-            //     'required',
-            //     'string',
-            //     'max:20',
-            //     function ($attribute, $value, $fail) {
-            //         if (!User::where('phone_number', $value)->exists()) {
-            //             $fail("رقم الجوال غير موجود.");
-            //         }
-            //     }
-            // ],
-            // 'address' => 'required|string',
-            'condition' => 'required|in:حديد,مستعمل',
-            'status' => 'required|in:متوفر,غير متوفر',
-        ];
+            }
+        ],
+        'condition' => 'required|in:جديد,مستعمل',
+        'status' => 'required|in:متوفر,غير متوفر',
+    ];
+        // return [
+        //     'image' => 'required',
+        //     'cover_image' => 'nullable',
+        //     'title' => 'required|string|min:3|max:255',
+        //     'name' => [
+        //         'required',
+        //         'string',
+        //         function ($attribute, $value, $fail) {
+        //             if (!Faculty::where('name', $value)->exists()) {
+        //                 $fail("اسم الكلية غير موجود.");
+        //             }
+        //         }
+        //     ],
+        //     // 'phone_number' => [
+        //     //     'required',
+        //     //     'string',
+        //     //     'max:20',
+        //     //     function ($attribute, $value, $fail) {
+        //     //         if (!User::where('phone_number', $value)->exists()) {
+        //     //             $fail("رقم الجوال غير موجود.");
+        //     //         }
+        //     //     }
+        //     // ],
+        //     // 'address' => 'required|string',
+        //     'condition' => 'required|in:جديد,مستعمل',
+        //     'status' => 'required|in:متوفر,غير متوفر',
+        // ];
     }
 }

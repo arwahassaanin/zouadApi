@@ -87,33 +87,73 @@ class HomeController extends Controller
             'faculty' => FacultyResource::collection($faculty)
         ]);
     }
+
+    // public function store(storeBookRequest $request)
+    // {
+    //     $imagePath = $request->file('image') ? $request->file('image')->store('books', 'public') : null;
+    //     $coverPath = $request->file('cover_image') ? $request->file('cover_image')->store('covers', 'public') : null;
+
+    //     $faculty = Faculty::where('name', $request->name)->first();
+    //     if (!$faculty) {
+    //         return response()->json([
+    //             'message' => 'اسم الكلية غير موجود.'
+    //         ], 404);
+    //     }
+
+    //     $book = Book::create([
+    //         'image' => $imagePath,         // خزّن المسار فقط
+    //         'cover_image' => $coverPath,
+    //         'title' => $request->title,
+    //         'faculty_id' => $faculty->id,
+    //         'condition' => $request->condition,
+    //         'status' => $request->status,
+    //         'user_id' => auth()->id(),
+    //     ]);
+
+    //     return response()->json([
+    //         'msg' => 'تم اضافة الكتاب بنجاح',
+    //         'book' => new storeBookResource($book)
+    //     ], 201);
+    // }
     public function store(storeBookRequest $request)
-    {
+{
+    // معالجة الصورة (ملف أو رابط)
+    $imagePath = null;
+    $coverPath = null;
 
-
-        $imagePath = $request->file('image') ? $request->file('image')->store('books', 'public') : null;
-        $coverPath = $request->file('cover_image') ? $request->file('cover_image')->store('covers', 'public') : null;
-        $faculty = Faculty::where('name', $request->name)->first();
-        if (!$faculty) {
-            return response()->json([
-                'message' => 'اسم الكلية غير موجود.'
-            ], 404);
-        }
-
-        $book = Book::create([
-            'image' => $imagePath ? Storage::url($imagePath) : null,
-            'cover_image' => $coverPath ? Storage::url($coverPath) : null,
-            'title' => $request->title,
-            'faculty_id' => $faculty->id,
-            // 'phone_number' => auth()->user()->phone_number,
-            'condition' => $request->condition,
-            'status' => $request->status,
-            'user_id' => auth()->id(),
-            // 'address' => auth()->user()->address,
-        ]);
-        return response()->json([
-            'msg' => 'تم اضافة الكتاب بنجاح',
-            'book' => new storeBookResource($book)
-        ], 201);
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('books', 'public');
+    } elseif ($request->filled('image') && str_starts_with($request->image, 'http')) {
+        $imagePath = $request->image; // نحفظ الرابط كما هو
     }
+
+    if ($request->hasFile('cover_image')) {
+        $coverPath = $request->file('cover_image')->store('covers', 'public');
+    } elseif ($request->filled('cover_image') && str_starts_with($request->cover_image, 'http')) {
+        $coverPath = $request->cover_image;
+    }
+
+    // التأكد من الكلية
+    $faculty = Faculty::where('name', $request->name)->first();
+    if (!$faculty) {
+        return response()->json(['message' => 'اسم الكلية غير موجود.'], 404);
+    }
+
+    // إنشاء الكتاب
+    $book = Book::create([
+        'image' => $imagePath,
+        'cover_image' => $coverPath,
+        'title' => $request->title,
+        'faculty_id' => $faculty->id,
+        'condition' => $request->condition,
+        'status' => $request->status,
+        'user_id' => auth()->id(),
+    ]);
+
+    return response()->json([
+        'msg' => 'تم اضافة الكتاب بنجاح',
+        'book' => new storeBookResource($book)
+    ], 201);
+}
+
 }

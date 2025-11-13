@@ -16,10 +16,12 @@ use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 //  Route::get('/test-cloudinary', [ProfileController::class, 'checkCloudinary']);
 
 Route::post('/test-upload', function (Request $request) {
-    if ($request->hasFile('photo')) {
-        $imageUrl = Cloudinary::upload($request->file('photo')->getRealPath())
-                    ->getSecurePath();
-        return response()->json(['url' => $imageUrl]);
+      if ($request->hasFile('photo')) {
+        $file = $request->file('photo');
+        return response()->json([
+            'original_name' => $file->getClientOriginalName(),
+            'size' => $file->getSize()
+        ]);
     } else {
         return response()->json(['error' => 'No file uploaded'], 400);
     }
