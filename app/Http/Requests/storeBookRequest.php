@@ -24,22 +24,47 @@ class storeBookRequest extends FormRequest
      */
     public function rules(): array
     {
-         return [
-        'image' => 'required',
-        'cover_image' => 'nullable',
-        'title' => 'required|string|min:3|max:255',
-        'name' => [
-            'required',
-            'string',
-            function ($attribute, $value, $fail) {
-                if (!Faculty::where('name', $value)->exists()) {
-                    $fail("اسم الكلية غير موجود.");
+        return [
+            'image' => [
+                'required',
+                function ($attribute, $value, $fail) {
+
+                    if (request()->file($attribute)) {
+                        return;
+                    }
+
+                    if ($value && !filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('الحقل يجب أن يكون صورة مرفوعة أو رابط URL صالح.');
+                    }
                 }
-            }
-        ],
-        'condition' => 'required|in:جديد,مستعمل',
-        'status' => 'required|in:متوفر,غير متوفر',
-    ];
+            ],
+
+            'cover_image' => [
+                'nullable',
+                function ($attribute, $value, $fail) {
+                    if (request()->file($attribute)) {
+                        return;
+                    }
+
+                    if ($value && !filter_var($value, FILTER_VALIDATE_URL)) {
+                        $fail('الحقل يجب أن يكون صورة مرفوعة أو رابط URL صالح.');
+                    }
+                }
+            ],
+
+            'title' => 'required|string|min:3|max:255',
+            'name' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (!Faculty::where('name', $value)->exists()) {
+                        $fail("اسم الكلية غير موجود.");
+                    }
+                }
+            ],
+            'condition' => 'required|in:جديد,مستعمل',
+            'status' => 'required|in:متوفر,غير متوفر',
+        ];
         // return [
         //     'image' => 'required',
         //     'cover_image' => 'nullable',
