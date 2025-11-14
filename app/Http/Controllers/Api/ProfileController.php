@@ -54,59 +54,43 @@ class ProfileController extends Controller
 //         ], 200);
 //     }
 public function update(profileRequest $request)
-    {
-        $user = $request->user();
-        $validated = $request->validated();
-
-        // تحديث بيانات المستخدم
-        $user->update([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'phone_number' => $validated['phone_number'],
-            'role' => $validated['role'],
-            'university_id' => $validated['university_id'] ?? null,
-            'national_id' => $validated['national_id'] ?? null,
-            'university' => $validated['university'],
-            'department' => $validated['department'],
-        ]);
-
-        if ($request->hasFile('image')) {
-            $profile = $user->profile ?: $user->profile()->create([]);
-
-            if ($profile->image) {
-                $publicId = pathinfo($profile->image, PATHINFO_FILENAME);
-                Cloudinary::destroy($publicId);
-            }
-
-            $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
-
-            $profile->update(['image' => $uploadedFileUrl]);
-        }
-
-        return response()->json([
-            'message' => 'تم تحديث الملف الشخصي بنجاح',
-            'user' => new profileResource($user->load('profile')),
-        ], 200);
-    }
-// ProfileController.php
-public function uploadTest(Request $request)
 {
-    $request->validate([
-        'image' => 'required|image|max:2048',
+    $user = $request->user();
+    $validated = $request->validated();
+
+    // تحديث بيانات المستخدم
+    $user->update([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+        'phone_number' => $validated['phone_number'],
+        'role' => $validated['role'],
+        'university_id' => $validated['university_id'] ?? null,
+        'national_id' => $validated['national_id'] ?? null,
+        'university' => $validated['university'],
+        'department' => $validated['department'],
     ]);
 
-    $uploadedFileUrl = Cloudinary::upload($request->file('image')->getRealPath())->getSecurePath();
+    // تحديث الصورة
+    $profile = $user->profile ?: $user->profile()->create([]);
+
+    // حالة رفع ملف جديد
+    if ($request->hasFile('image')) {
+        $uploadedFileUrl = $request->file('image')->store('profiles', 'public');
+        $profile->update(['image' => $uploadedFileUrl]);
+    }
+    // حالة رابط خارجي
+    elseif (!empty($validated['image'])) {
+        $profile->update(['image' => $validated['image']]);
+    }
+    // حالة إبقاء الصورة فاضية (null)
+    elseif (!isset($validated['image'])) {
+        $profile->update(['image' => null]);
+    }
 
     return response()->json([
-        'message' => 'تم رفع الصورة بنجاح!',
-        'url' => $uploadedFileUrl
-    ]);
+        'message' => 'تم تحديث الملف الشخصي بنجاح',
+        'user' => new profileResource($user->load('profile')),
+    ], 200);
 }
-
-
-    public function checkCloudinary()
-    {
-        dd(env('CLOUDINARY_URL'));
-    }
 }
 

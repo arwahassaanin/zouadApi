@@ -26,9 +26,7 @@ class profileResource extends JsonResource
             'department' => $this->department,
 
             // الصورة من جدول profiles
-            'image' => $this->profile && $this->profile->image
-                ? asset('storage/'.$this->profile->image)
-                : null,
+            'image' => $this->profile ? $this->profile->image_url : null,
         ];
     }
 }
