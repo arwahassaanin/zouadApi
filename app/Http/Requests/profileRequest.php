@@ -45,7 +45,21 @@ class profileRequest extends FormRequest
             ],
             'university' => 'required|string|max:255',
             'department' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'image' => [
+    'nullable',
+    function ($attribute, $value, $fail) {
+        // لو رفع ملف → تمام
+        if (request()->file($attribute)) {
+            return;
+        }
+
+        // لو رابط → لازم يكون URL صالح
+        if ($value && !filter_var($value, FILTER_VALIDATE_URL)) {
+            $fail('الحقل يجب أن يكون صورة مرفوعة أو رابط URL صالح.');
+        }
+    }
+],
+
         ];
     }
 }
