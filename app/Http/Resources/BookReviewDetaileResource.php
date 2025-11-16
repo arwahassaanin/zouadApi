@@ -20,8 +20,8 @@ class BookReviewDetaileResource extends JsonResource
         return [
             'id'=>$this->id,
             'title'=>$this->title,
-            'image_url' => $this->image ? asset('storage/' . $this->image) : null,
-            'cover_image' => $this->cover_image ? asset('storage/' . $this->cover_image) : null,
+            'image_url' => $this->image_url,
+            'cover_image' => $this->cover_image_url,
             'rating' => $averageRating,
              'user' => [
                 'id' => $this->user->id,

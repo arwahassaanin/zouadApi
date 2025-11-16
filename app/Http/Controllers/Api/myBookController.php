@@ -46,12 +46,16 @@ class myBookController extends Controller
     }
     public function BookFaculties()
     {
-        $books = Book::all()->groupBy('faculty');
+     $books = Book::with('faculty')->get()->groupBy('faculty_id');
 
-        return response()->json([
-            'message' => 'تم جلب الكتب لكل كلية بنجاح',
-            'data' => $books
-        ]);
+    $result = $books->map(function ($group) {
+        return BookResource::collection($group);
+    });
+     return response()->json([
+        'message' => 'تم جلب الكتب لكل كلية بنجاح',
+        'data' => $result
+    ]);
+
     }
     public function show($id)
     {
